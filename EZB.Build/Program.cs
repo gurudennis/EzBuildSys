@@ -8,8 +8,13 @@ namespace EZB.Build
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
+            BuildEngine.Engine engine = new BuildEngine.Engine();
+
+            // ...
+
+            return 0;
         }
     }
 }

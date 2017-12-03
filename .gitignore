@@ -2,5 +2,6 @@
 *.cache
 /.gitignore
 */obj
+*/bin
 Output/*
 *.suo
