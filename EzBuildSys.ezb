@@ -1,0 +1,28 @@
+{
+	"type" : "EZB.BuildProfile",
+	"version" : 1,
+	"profile" :
+	{
+		"prebuild" :
+		{
+			"items" : 
+			[
+			]
+		},
+		"build" :
+		{
+			"items" : 
+			[
+				{
+					"path" : "EzBuildSys.sln"
+				}
+			]
+		},
+		"postbuild" :
+		{
+			"items" : 
+			[
+			]
+		}
+	}
+}

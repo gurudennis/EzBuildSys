@@ -40,8 +40,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\IAction.cs" />
+    <Compile Include="Actions\MSBuildAction.cs" />
+    <Compile Include="Actions\ScriptAction.cs" />
+    <Compile Include="Actions\ShellAction.cs" />
+    <Compile Include="Profile.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Profile\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
