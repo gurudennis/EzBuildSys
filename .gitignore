@@ -1,0 +1,6 @@
+*.ide
+*.cache
+/.gitignore
+*/obj
+Output/*
+*.suo
