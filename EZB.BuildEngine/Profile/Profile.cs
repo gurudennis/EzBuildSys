@@ -28,9 +28,10 @@ namespace EZB.BuildEngine.Profile
     {
         public Stage()
         {
+            Items = new List<Item>();
         }
 
-        public IList<Item> Items { get; internal set; }
+        public IList<Item> Items { get; private set; }
     }
 
     internal class Profile
@@ -54,7 +55,7 @@ namespace EZB.BuildEngine.Profile
 
             Build = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileRoot, "build", null));
             if (Build == null)
-                throw new ApplicationException($"A valid build must have a main \"build\" stage");
+                throw new ApplicationException($"A build must have a valid non-empty main \"build\" stage");
 
             PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileRoot, "postbuild", null));
         }
@@ -67,9 +68,57 @@ namespace EZB.BuildEngine.Profile
 
         private Stage StageFromJSON(Dictionary<string, object> stageRoot)
         {
-            // ...
+            List<Dictionary<string, object>> itemsObj = GetJSONValue<List<Dictionary<string, object>>>(stageRoot, "items", null);
+            if (itemsObj == null || itemsObj.Count == 0)
+                return null;
 
-            return null;
+            Stage stage = new Stage();
+
+            foreach (Dictionary<string, object> itemObj in itemsObj)
+            {
+                Item item = ItemFromJSON(itemObj);
+                if (item == null)
+                    throw new ApplicationException($"Invalid build item found");
+
+                stage.Items.Add(item);
+            }
+
+            return stage;
+        }
+
+        private Item ItemFromJSON(Dictionary<string, object> itemRoot)
+        {
+            if (itemRoot == null)
+                return null;
+
+            Item item = new Item();
+
+            item.Path = GetJSONValue<string>(itemRoot, "path", null);
+            if (string.IsNullOrEmpty(item.Path))
+                throw new ApplicationException($"A build item must have a path");
+
+            string type = GetJSONValue<string>(itemRoot, "type", null);
+            if (string.IsNullOrEmpty(type))
+                item.Type = DeduceItemTypeFromPath(item.Path);
+            else
+                item.Type = (ItemType)Enum.Parse(typeof(ItemType), type);
+
+            return item;
+        }
+
+        private ItemType DeduceItemTypeFromPath(string path)
+        {
+            string ext = Path.GetExtension(path);
+            if (ext == ".sln")
+                return ItemType.Solution;
+            else if (ext == ".csproj" || ext == ".vcxproj" || ext == ".vbproj")
+                return ItemType.Project;
+            else if (ext == ".ps1")
+                return ItemType.PowerShellScript;
+            else if (ext == ".cmd" || ext == ".bat")
+                return ItemType.BatchScript;
+
+            return ItemType.ShellCommand;
         }
 
         private T GetJSONValue<T>(Dictionary<string, object> obj, string name, T defValue)
