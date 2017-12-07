@@ -53,6 +53,10 @@
       <Project>{b4182846-914f-4aef-b2c5-8745144a8668}</Project>
       <Name>EZB.BuildEngine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EZB.Common\EZB.Common.csproj">
+      <Project>{0ec22265-f62e-4edc-9421-fc33413d22e2}</Project>
+      <Name>EZB.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

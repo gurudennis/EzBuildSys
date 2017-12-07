@@ -25,7 +25,7 @@ namespace EZB.BuildEngine
 
     public class Build
     {
-        void Execute(BuildAction action)
+        public void Execute(BuildAction action)
         {
             // ...
         }

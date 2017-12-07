@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Web.Script.Serialization;
@@ -51,13 +52,17 @@ namespace EZB.BuildEngine.Profile
             if (Version > MaxUnderstoodVersion)
                 throw new ApplicationException($"Profile version {Version} is greater than {MaxUnderstoodVersion} that is supported by this executable");
 
-            PreBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileRoot, "prebuild", null));
+            Dictionary<string, object> profileObjRoot = GetJSONValue<Dictionary<string, object>>(profileRoot, "profile", null);
+            if (profileObjRoot == null)
+                throw new ApplicationException($"A build must have a valid non-empty main \"profile\" section");
 
-            Build = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileRoot, "build", null));
+            PreBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "prebuild", null));
+
+            Build = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "build", null));
             if (Build == null)
                 throw new ApplicationException($"A build must have a valid non-empty main \"build\" stage");
 
-            PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileRoot, "postbuild", null));
+            PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postbuild", null));
         }
 
         public int Version { get; private set; }
@@ -68,7 +73,10 @@ namespace EZB.BuildEngine.Profile
 
         private Stage StageFromJSON(Dictionary<string, object> stageRoot)
         {
-            List<Dictionary<string, object>> itemsObj = GetJSONValue<List<Dictionary<string, object>>>(stageRoot, "items", null);
+            if (stageRoot == null)
+                return null;
+
+            ArrayList itemsObj = GetJSONValue<ArrayList>(stageRoot, "items", null);
             if (itemsObj == null || itemsObj.Count == 0)
                 return null;
 
