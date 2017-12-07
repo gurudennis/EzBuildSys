@@ -25,6 +25,13 @@ namespace EZB.BuildEngine.Profile
         public string Path { get; internal set; }
     }
 
+    internal enum StageType
+    {
+        Prebuild,
+        Build,
+        Postbuild
+    }
+
     internal class Stage
     {
         public Stage()
@@ -32,6 +39,7 @@ namespace EZB.BuildEngine.Profile
             Items = new List<Item>();
         }
 
+        public StageType Type { get; internal set; }
         public IList<Item> Items { get; private set; }
     }
 
@@ -56,13 +64,13 @@ namespace EZB.BuildEngine.Profile
             if (profileObjRoot == null)
                 throw new ApplicationException($"A build must have a valid non-empty main \"profile\" section");
 
-            PreBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "prebuild", null));
+            PreBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "prebuild", null), StageType.Prebuild);
 
-            Build = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "build", null));
+            Build = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "build", null), StageType.Build);
             if (Build == null)
                 throw new ApplicationException($"A build must have a valid non-empty main \"build\" stage");
 
-            PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postbuild", null));
+            PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postbuild", null), StageType.Postbuild);
         }
 
         public int Version { get; private set; }
@@ -71,7 +79,7 @@ namespace EZB.BuildEngine.Profile
         public Stage Build { get; private set; }
         public Stage PostBuild { get; private set; }
 
-        private Stage StageFromJSON(Dictionary<string, object> stageRoot)
+        private Stage StageFromJSON(Dictionary<string, object> stageRoot, StageType stageType)
         {
             if (stageRoot == null)
                 return null;
@@ -81,6 +89,7 @@ namespace EZB.BuildEngine.Profile
                 return null;
 
             Stage stage = new Stage();
+            stage.Type = stageType;
 
             foreach (Dictionary<string, object> itemObj in itemsObj)
             {

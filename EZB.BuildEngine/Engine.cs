@@ -27,7 +27,11 @@ namespace EZB.BuildEngine
     {
         public void Execute(BuildAction action)
         {
-            // ...
+            Prepare();
+
+            ExecuteStage(action, _profile.PreBuild);
+            ExecuteStage(action, _profile.Build);
+            ExecuteStage(action, _profile.PostBuild);
         }
 
         internal Build(Profile.Profile profile)
@@ -35,6 +39,35 @@ namespace EZB.BuildEngine
             _profile = profile;
         }
 
+        private void ExecuteStage(BuildAction action, Profile.Stage stage)
+        {
+            if (stage == null)
+                return;
+
+            if (stage.Type != Profile.StageType.Build && action == BuildAction.Clean)
+                return;
+
+            foreach (Profile.Item item in stage.Items)
+            {
+                ExecuteItem(action, stage, item);
+            }
+        }
+
+        private void ExecuteItem(BuildAction action, Profile.Stage stage, Profile.Item item)
+        {
+            if (item == null)
+                return;
+
+            // ...
+        }
+
+        private void Prepare()
+        {
+            // ...
+        }
+
         private Profile.Profile _profile;
+
+        private string _msBuildPath;
     }
 }
