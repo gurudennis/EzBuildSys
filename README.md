@@ -1,6 +1,7 @@
 # EzBuildSys
 A Windows-based build system that doesn't suck.
 
+```
 Parameters:
     /help            Show this information
     /verb            Build (default), Rebuild or Clean
@@ -10,5 +11,6 @@ Parameters:
 Examples:
     EZB.Build /verb Clean /profile MyProfile.ezb /interactive
     EZB.Build MyProfile.ezb
+```
 
-# Under development - incomplete.
+###### (under development - documentation and more features coming).
