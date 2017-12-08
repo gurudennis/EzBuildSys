@@ -6,10 +6,14 @@ namespace EZB.BuildEngine.Actions
     {
         public ShellAction(string cmdLine)
         {
+            _processAction = new ProcessAction("cmd.exe", "/c " + cmdLine, true);
         }
 
         public void Execute()
         {
+            _processAction.Execute();
         }
+
+        private ProcessAction _processAction;
     }
 }

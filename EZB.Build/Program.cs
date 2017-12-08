@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 
-namespace EZB.Build
+namespace EZB.Buildp
 {
     internal class Program
     {
@@ -52,20 +53,31 @@ namespace EZB.Build
             if (string.IsNullOrEmpty(profilePath))
                 throw new ApplicationException("No profile path specified");
 
-            string verb = cmdLine.GetValue<string>("/verb", "Build");
-            if (string.IsNullOrEmpty(verb))
-                throw new ApplicationException("Invalid verb specified");
+            string dirPath = new FileInfo(profilePath).Directory.FullName;
+            string prevDirPath = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(dirPath);
 
-            BuildEngine.BuildAction buildAction = BuildEngine.BuildAction.Build;
-            if (!Enum.TryParse(verb, true, out buildAction))
-                throw new ApplicationException($"Unrecognized verb \"{verb}\" specified");
+            try
+            {
+                string verb = cmdLine.GetValue<string>("/verb", "Build");
+                if (string.IsNullOrEmpty(verb))
+                    throw new ApplicationException("Invalid verb specified");
 
-            Console.WriteLine($"== {buildAction}ing \"{profilePath}\".\r\n");
+                BuildEngine.BuildAction buildAction = BuildEngine.BuildAction.Build;
+                if (!Enum.TryParse(verb, true, out buildAction))
+                    throw new ApplicationException($"Unrecognized verb \"{verb}\" specified");
 
-            BuildEngine.Engine engine = new BuildEngine.Engine();
+                Console.WriteLine($"== {buildAction}ing \"{profilePath}\".\r\n");
 
-            BuildEngine.Build build = engine.CreateBuild(profilePath);
-            build.Execute(buildAction);
+                BuildEngine.Engine engine = new BuildEngine.Engine();
+
+                BuildEngine.Build build = engine.CreateBuild(profilePath);
+                build.Execute(buildAction);
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(prevDirPath);
+            }
 
             Console.WriteLine("\r\n== Build completed successfully.");
         }

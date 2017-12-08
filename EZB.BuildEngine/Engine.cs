@@ -88,7 +88,7 @@ namespace EZB.BuildEngine
             Actions.IAction resolvedAction = null;
 
             if (item.Type == Profile.ItemType.Solution || item.Type == Profile.ItemType.Project)
-                resolvedAction = new Actions.MSBuildAction(item.Path, action == BuildAction.Clean);
+                resolvedAction = new Actions.MSBuildAction(item.Path, action == BuildAction.Clean, _environment);
             else if (item.Type == Profile.ItemType.BatchScript || item.Type == Profile.ItemType.ShellCommand)
                 resolvedAction = new Actions.ShellAction(item.Path);
             else if (item.Type == Profile.ItemType.PowerShellScript)
