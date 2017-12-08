@@ -20,9 +20,13 @@ namespace EZB.Buildp
         {
             Console.WriteLine($"== EzBuildSys command line build tool v.{Assembly.GetEntryAssembly().GetName().Version.ToString(3)} ==\r\n");
 
+            int retcode = 0;
+
+            Common.CommandLine cmdLine = null;
+
             try
             {
-                Common.CommandLine cmdLine = new Common.CommandLine(args);
+                cmdLine = new Common.CommandLine(args);
                 RunInternal(cmdLine);
             }
             catch (Exception ex)
@@ -35,10 +39,16 @@ namespace EZB.Buildp
                     Debugger.Break();
 #endif
 
-                return -1;
+                retcode = -1;
             }
 
-            return 0;
+            if (cmdLine != null && cmdLine.GetValue("/interactive", false))
+            {
+                Console.Write("== Press any key to exit... ");
+                Console.ReadKey();
+            }
+
+            return retcode;
         }
 
         private void RunInternal(Common.CommandLine cmdLine)
@@ -88,8 +98,9 @@ namespace EZB.Buildp
             Console.WriteLine("    /help            Show this information");
             Console.WriteLine("    /verb            Build (default), Rebuild or Clean");
             Console.WriteLine("    /profile         Path to the *.ezb profile. Can be positional (1st argument)");
+            Console.WriteLine("    /interactive     Interactive mode (requires some input)");
             Console.WriteLine("\r\nExamples:");
-            Console.WriteLine("    EZB.Build /verb Clean /profile MyProfile.ezb");
+            Console.WriteLine("    EZB.Build /verb Clean /profile MyProfile.ezb /interactive");
             Console.WriteLine("    EZB.Build MyProfile.ezb");
             Console.WriteLine();
         }
