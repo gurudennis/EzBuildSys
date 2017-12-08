@@ -2,7 +2,14 @@
 
 namespace EZB.BuildEngine.Actions
 {
-    class MSBuildAction
+    class MSBuildAction : IAction
     {
+        public MSBuildAction(string path, bool clean)
+        {
+        }
+
+        public void Execute()
+        {
+        }
     }
 }

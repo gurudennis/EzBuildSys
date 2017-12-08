@@ -2,9 +2,9 @@
 
 namespace EZB.BuildEngine.Actions
 {
-    class ShellAction : IAction
+    class ProcessAction : IAction
     {
-        public ShellAction(string cmdLine)
+        public ProcessAction(string path, string cmdLine)
         {
         }
 

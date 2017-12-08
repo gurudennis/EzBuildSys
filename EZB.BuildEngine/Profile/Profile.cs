@@ -27,9 +27,10 @@ namespace EZB.BuildEngine.Profile
 
     internal enum StageType
     {
-        Prebuild,
+        PreBuild,
         Build,
-        Postbuild
+        PostBuild,
+        PostClean,
     }
 
     internal class Stage
@@ -64,13 +65,15 @@ namespace EZB.BuildEngine.Profile
             if (profileObjRoot == null)
                 throw new ApplicationException($"A build must have a valid non-empty main \"profile\" section");
 
-            PreBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "prebuild", null), StageType.Prebuild);
+            PreBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "prebuild", null), StageType.PreBuild);
 
             Build = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "build", null), StageType.Build);
             if (Build == null)
                 throw new ApplicationException($"A build must have a valid non-empty main \"build\" stage");
 
-            PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postbuild", null), StageType.Postbuild);
+            PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postbuild", null), StageType.PostBuild);
+
+            PostClean = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postclean", null), StageType.PostClean);
         }
 
         public int Version { get; private set; }
@@ -78,6 +81,7 @@ namespace EZB.BuildEngine.Profile
         public Stage PreBuild { get; private set; }
         public Stage Build { get; private set; }
         public Stage PostBuild { get; private set; }
+        public Stage PostClean { get; private set; }
 
         private Stage StageFromJSON(Dictionary<string, object> stageRoot, StageType stageType)
         {

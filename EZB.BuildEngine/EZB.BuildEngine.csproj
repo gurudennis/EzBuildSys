@@ -43,8 +43,10 @@
   <ItemGroup>
     <Compile Include="Actions\IAction.cs" />
     <Compile Include="Actions\MSBuildAction.cs" />
-    <Compile Include="Actions\ScriptAction.cs" />
+    <Compile Include="Actions\PowerShellAction.cs" />
+    <Compile Include="Actions\ProcessAction.cs" />
     <Compile Include="Actions\ShellAction.cs" />
+    <Compile Include="Environment.cs" />
     <Compile Include="Profile\Profile.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
