@@ -4,27 +4,29 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B4182846-914F-4AEF-B2C5-8745144A8668}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EZB.BuildEngine</RootNamespace>
-    <AssemblyName>EZB.BuildEngine</AssemblyName>
+    <ProjectGuid>{BC070CD4-F6FD-4A63-BE51-1E7A5D926EB0}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>EZB.PackServer</RootNamespace>
+    <AssemblyName>EZB.PackServer</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Output\Debug\EZB.Build\</OutputPath>
+    <OutputPath>..\Output\Debug\EZB.PackServer\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Output\Release\EZB.Build\</OutputPath>
+    <OutputPath>..\Output\Release\EZB.PackClient\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -32,7 +34,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,20 +42,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions\IAction.cs" />
-    <Compile Include="Actions\MSBuildAction.cs" />
-    <Compile Include="Actions\PowerShellAction.cs" />
-    <Compile Include="Actions\ProcessAction.cs" />
-    <Compile Include="Actions\ShellAction.cs" />
-    <Compile Include="Environment.cs" />
-    <Compile Include="Profile\Profile.cs" />
-    <Compile Include="Engine.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EZB.Common\EZB.Common.csproj">
       <Project>{0ec22265-f62e-4edc-9421-fc33413d22e2}</Project>
       <Name>EZB.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EZB.PackEngine\EZB.PackEngine.csproj">
+      <Project>{0d400d26-44d7-41e0-a859-2a20151f9e8b}</Project>
+      <Name>EZB.PackEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
