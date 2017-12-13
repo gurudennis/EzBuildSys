@@ -25,7 +25,8 @@ Parameters:
     /name            Package name
     /version         Package version
     /interactive     Interactive mode (requires some input)
-Examples:");
+
+Examples:
     EZB.PackClient /verb Pack /pathIn c:\temp\MyPackageRoot /pathOut c:\temp\MyPackage
 ```
 
