@@ -75,6 +75,8 @@ namespace EZB.PackClient
                 string verb = cmdLine.GetValue<string>("/verb", "Build");
                 if (verb == "Pack")
                     DoPack(engine, cmdLine);
+                else if (verb == "Unpack")
+                    DoUnpack(engine, cmdLine);
                 else
                     throw new ApplicationException("Invalid verb specified");
             }
@@ -127,6 +129,29 @@ namespace EZB.PackClient
             PackEngine.PackageWriter writer = engine.CreatePackageWriter(pathOut, info);
             writer.AddFolder(pathIn, string.Empty);
             writer.Save();
+        }
+
+        private void DoUnpack(PackEngine.Engine engine, Common.CommandLine cmdLine)
+        {
+            string pathIn = cmdLine.GetValue<string>("/pathIn");
+            if (string.IsNullOrEmpty(pathIn))
+                throw new ApplicationException("Input path is required");
+
+            string pathOut = cmdLine.GetValue<string>("/pathOut");
+            if (string.IsNullOrEmpty(pathOut))
+                throw new ApplicationException("Output path is required");
+
+            PackEngine.PackageReader reader = engine.CreatePackageReader(pathIn);
+
+            PackEngine.PackageInfo info = reader.GetInfo();
+            if (info == null)
+                throw new ApplicationException("The package metadata is invalid");
+
+            pathOut = pathOut.Replace("{PackageName}", info.Name).Replace("{PackageVersion}", info.Version.ToString());
+
+            Console.WriteLine($"== Extracting package \"{info.Name}\".\r\n");
+
+            reader.Extract(pathOut);
         }
     }
 }

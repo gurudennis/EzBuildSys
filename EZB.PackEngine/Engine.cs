@@ -8,5 +8,10 @@ namespace EZB.PackEngine
         {
             return new PackageWriter(path, info);
         }
+
+        public PackageReader CreatePackageReader(string path)
+        {
+            return new PackageReader(path);
+        }
     }
 }

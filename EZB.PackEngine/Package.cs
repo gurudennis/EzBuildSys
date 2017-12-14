@@ -7,7 +7,7 @@ using System.Web.Script.Serialization;
 
 namespace EZB.PackEngine
 {
-    public struct PackageInfo
+    public class PackageInfo
     {
         public string Name { get; set; }
         public Version Version { get; set; }
@@ -93,5 +93,64 @@ namespace EZB.PackEngine
         private PackageInfo _info;
         private string _path;
         private string _tmpFolder;
+    }
+
+    public class PackageReader
+    {
+        internal PackageReader(string path)
+        {
+            if (!File.Exists(path))
+                throw new ArgumentException("The package path is invalid");
+
+            _path = path;
+        }
+
+        public PackageInfo GetInfo()
+        {
+            if (_info != null)
+                return _info;
+
+            try
+            {
+                string json = null;
+
+                using (ZipArchive archive = new ZipArchive(new FileStream(_path, FileMode.Open), ZipArchiveMode.Read))
+                {
+                    ZipArchiveEntry metadataEntry = archive.Entries.Where((ZipArchiveEntry e) => e.FullName == PackageInfo.FileName).First();
+
+                    using (Stream stream = metadataEntry.Open())
+                    {
+                        using (StreamReader reader = new StreamReader(stream))
+                        {
+                            json = reader.ReadToEnd();
+                        }
+                    }
+                }
+
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                Dictionary<string, object> root = serializer.Deserialize<Dictionary<string, object>>(json);
+
+                PackageInfo info = new PackageInfo();
+                info.Name = (string)root["name"];
+                info.Version = Version.Parse((string)root["version"]);
+
+                _info = info;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return _info;
+        }
+
+        public void Extract(string path)
+        {
+            Directory.CreateDirectory(path);
+            ZipFile.ExtractToDirectory(_path, path);
+        }
+
+        private string _path;
+        private PackageInfo _info;
     }
 }
