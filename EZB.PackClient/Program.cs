@@ -101,7 +101,11 @@ namespace EZB.PackClient
             Console.WriteLine("    /version         Package version");
             Console.WriteLine("    /interactive     Interactive mode (requires some input)");
             Console.WriteLine("\r\nExamples:");
-            Console.WriteLine("    EZB.PackClient /verb Pack /pathIn c:\\temp\\MyPackageRoot /pathOut c:\\temp\\MyPackage");
+            Console.WriteLine("    EZB.PackClient /verb Pack /pathIn c:\\temp\\MyPackageRoot");
+            Console.WriteLine("                   /pathOut c:\\temp\\{PackageName}_{PackageVersion}.zip");
+            Console.WriteLine("                   /name MyPackage /version 1.2.3.4");
+            Console.WriteLine("    EZB.PackClient /verb Unpack /pathIn c:\\temp\\MyPackage.zip");
+            Console.WriteLine("                   /pathOut c:\\temp\\{PackageName}_{PackageVersion}");
             Console.WriteLine();
         }
 
@@ -123,6 +127,9 @@ namespace EZB.PackClient
             PackEngine.PackageInfo info = new PackEngine.PackageInfo();
             info.Name = cmdLine.GetValue<string>("/name", Path.GetFileNameWithoutExtension(pathOut));
             info.Version = version;
+
+            pathIn = ReplacePackageInfoWildcards(pathIn, info);
+            pathOut = ReplacePackageInfoWildcards(pathOut, info);
 
             Console.WriteLine($"== Creating package \"{info.Name}\".\r\n");
 
@@ -147,11 +154,16 @@ namespace EZB.PackClient
             if (info == null)
                 throw new ApplicationException("The package metadata is invalid");
 
-            pathOut = pathOut.Replace("{PackageName}", info.Name).Replace("{PackageVersion}", info.Version.ToString());
+            pathOut = ReplacePackageInfoWildcards(pathOut, info);
 
             Console.WriteLine($"== Extracting package \"{info.Name}\".\r\n");
 
             reader.Extract(pathOut);
+        }
+
+        private string ReplacePackageInfoWildcards(string str, PackEngine.PackageInfo info)
+        {
+            return str.Replace("{PackageName}", info.Name).Replace("{PackageVersion}", info.Version.ToString());
         }
     }
 }

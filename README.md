@@ -27,7 +27,11 @@ Parameters:
     /interactive     Interactive mode (requires some input)
 
 Examples:
-    EZB.PackClient /verb Pack /pathIn c:\temp\MyPackageRoot /pathOut c:\temp\MyPackage
+    EZB.PackClient /verb Pack /pathIn c:\temp\MyPackageRoot
+                   /pathOut c:\temp\{PackageName}_{PackageVersion}.zip
+                   /name MyPackage /version 1.2.3.4
+    EZB.PackClient /verb Unpack /pathIn c:\temp\MyPackage.zip
+                   /pathOut c:\temp\{PackageName}_{PackageVersion}
 ```
 
-###### (under development - documentation and more features coming).
+##### (under development - documentation and more features coming).
