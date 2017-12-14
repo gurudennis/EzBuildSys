@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EZB.PackClient", "EZB.PackC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EZB.PackServer", "EZB.PackServer\EZB.PackServer.csproj", "{BC070CD4-F6FD-4A63-BE51-1E7A5D926EB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EZB.PackServerEngine", "EZB.PackServerEngine\EZB.PackServerEngine.csproj", "{DAFBD7FE-D2EE-49A5-8348-8F258BD8B046}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{BC070CD4-F6FD-4A63-BE51-1E7A5D926EB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC070CD4-F6FD-4A63-BE51-1E7A5D926EB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC070CD4-F6FD-4A63-BE51-1E7A5D926EB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAFBD7FE-D2EE-49A5-8348-8F258BD8B046}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAFBD7FE-D2EE-49A5-8348-8F258BD8B046}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAFBD7FE-D2EE-49A5-8348-8F258BD8B046}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAFBD7FE-D2EE-49A5-8348-8F258BD8B046}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
