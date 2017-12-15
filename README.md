@@ -34,4 +34,17 @@ Examples:
                    /pathOut c:\temp\{PackageName}_{PackageVersion}
 ```
 
-##### (under development - documentation and more features coming).
+##### EZB.PackServer.exe
+```
+Parameters:
+    /help            Show this information
+    /root            Path to the server storage root. Can be positional (1st argument)
+    /iface           Interface on which to listen for requests. Defaults to all.
+    /port            Port on which to listen for requests. Defaults to 8710.
+
+Examples:
+    EZB.PackServer c:\packageroot
+    EZB.PackServer /root c:\packageroot /iface localhost /port 80
+```
+
+#### (under development - documentation and more features coming).

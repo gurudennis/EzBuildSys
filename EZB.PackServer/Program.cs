@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace EZB.Buildp
 {
@@ -62,14 +63,24 @@ namespace EZB.Buildp
 
             try
             {
-                // TODO: implement
+                string iface = cmdLine.GetValue<string>("/iface", Common.RESTServer.AnyInterface);
+                short port = cmdLine.GetValue<short>("/port", PackServerEngine.Server.DefaultPort);
+
+                PackServerEngine.Engine engine = new PackServerEngine.Engine();
+
+                using (PackServerEngine.Server server = engine.CreateServer(port, iface))
+                {
+                    Console.WriteLine($"== Server running on \"{iface}:{port}\"");
+
+                    Thread.Sleep(Timeout.Infinite); // TODO: replace with graceful stop logic
+                }
             }
             finally
             {
                 Directory.SetCurrentDirectory(prevDirPath);
             }
 
-            Console.WriteLine("\r\n== Server stopping gracefully.");
+            Console.WriteLine("\r\n== Server stopped gracefully.");
         }
 
         private void Usage()
@@ -77,8 +88,11 @@ namespace EZB.Buildp
             Console.WriteLine("Parameters:");
             Console.WriteLine("    /help            Show this information");
             Console.WriteLine("    /root            Path to the server storage root. Can be positional (1st argument)");
+            Console.WriteLine("    /iface           Interface on which to listen for requests. Defaults to all.");
+            Console.WriteLine("    /port            Port on which to listen for requests. Defaults to {0}.", PackServerEngine.Server.DefaultPort);
             Console.WriteLine("\r\nExamples:");
-            Console.WriteLine("    EZB.PackServer /root c:\\temp");
+            Console.WriteLine("    EZB.PackServer c:\\packageroot");
+            Console.WriteLine("    EZB.PackServer /root c:\\packageroot /iface localhost /port 80");
             Console.WriteLine();
         }
     }
