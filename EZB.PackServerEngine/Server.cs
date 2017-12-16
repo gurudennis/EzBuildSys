@@ -31,8 +31,6 @@ namespace EZB.PackServerEngine
 
         private void OnRequest(HttpListenerRequest request, HttpListenerResponse response)
         {
-            response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
             bool isGET = (request.HttpMethod == "GET");
             bool isPUT = (request.HttpMethod == "PUT");
             bool isDELETE = (request.HttpMethod == "DELETE");
@@ -81,9 +79,9 @@ namespace EZB.PackServerEngine
             {
                 if (request.Url.PathAndQuery.StartsWith("/packages?"))
                 {
-                    _packageManager.GetPackage(name, version, response.OutputStream);
                     response.ContentType = "application/x-zip-compressed";
                     response.Headers["Content-Disposition"] = $"attachment; filename={name}_{version.ToString(4)}.zip";
+                    _packageManager.GetPackage(name, version, response.OutputStream);
                 }
                 else if (request.Url.PathAndQuery.StartsWith("/packages/list?") ||
                          request.Url.PathAndQuery == "/packages/list" || request.Url.PathAndQuery == "/packages/list/")

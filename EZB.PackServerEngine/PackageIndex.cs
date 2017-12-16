@@ -89,22 +89,72 @@ namespace EZB.PackServerEngine
 
         public Entry GetEntry(string name, Version version)
         {
-            // ...
+            SQLiteCommand command = new SQLiteCommand("SELECT * FROM packages WHERE name=@n AND version=@v;", _db);
+
+            command.Parameters.Add("@n", System.Data.DbType.String);
+            command.Parameters["@n"].Value = name;
+
+            command.Parameters.Add("@v", System.Data.DbType.String);
+            command.Parameters["@v"].Value = version;
+
+            SQLiteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Entry entry = new Entry();
+                entry.Info.Name = (string)reader["name"];
+                entry.Info.Version = Version.Parse((string)reader["version"]);
+                entry.StoreFileName = (string)reader["storeName"];
+                return entry;
+            }
 
             return null;
         }
 
-        public List<Entry> ListEntries(string name, Version version)
+        public List<Entry> ListEntries(string name, Version version = null, int maxResults = 1024)
         {
-            // ...
+            string sql = null;
+            if (name == null)
+                sql = $"SELECT * FROM packages LIMIT {maxResults};";
+            else if (version == null)
+                sql = "SELECT * FROM packages WHERE name LIKE @n;";
+            else
+                sql = "SELECT * FROM packages WHERE name LIKE @n AND version=@v;";
 
-            return null;
+            SQLiteCommand command = new SQLiteCommand(sql, _db);
+
+            if (name != null)
+            {
+                command.Parameters.Add("@n", System.Data.DbType.String);
+                command.Parameters["@n"].Value = "%" + name + "%";
+            }
+
+            if (version != null)
+            {
+                command.Parameters.Add("@v", System.Data.DbType.String);
+                command.Parameters["@v"].Value = version;
+            }
+
+            List<Entry> entries = new List<Entry>();
+
+            SQLiteDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Entry entry = new Entry();
+                entry.Info.Name = (string)reader["name"];
+                entry.Info.Version = Version.Parse((string)reader["version"]);
+                entry.StoreFileName = (string)reader["storeName"];
+
+                if (entry.IsValid)
+                    entries.Add(entry);
+            }
+
+            return entries;
         }
 
         private void InitializeDatabase()
         {
             (new SQLiteCommand("CREATE TABLE packages (name VARCHAR(128) NOT NULL, version VARCHAR(16) NOT NULL, storeName VARCHAR(256) NOT NULL);", _db)).ExecuteNonQuery();
-            (new SQLiteCommand("CREATE INDEX packages_nameVersionIndex ON packages (name, version);", _db)).ExecuteNonQuery();
+            (new SQLiteCommand("CREATE UNIQUE INDEX packages_nameVersionIndex ON packages (name, version);", _db)).ExecuteNonQuery();
         }
 
         private string GetIndexFilePath()
