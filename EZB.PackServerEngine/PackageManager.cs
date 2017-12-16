@@ -4,7 +4,7 @@ using System.IO;
 
 namespace EZB.PackServerEngine
 {
-    public class PackageManager
+    public class PackageManager : IDisposable
     {
         internal PackageManager(string root)
         {
@@ -12,6 +12,21 @@ namespace EZB.PackServerEngine
             _guard = new object();
             _index = new PackageIndex(Path.Combine(_root, "Index"));
             _store = new PackageStore(Path.Combine(_root, "Packages"));
+        }
+
+        public void Dispose()
+        {
+            if (_index != null)
+            {
+                _index.Dispose();
+                _index = null;
+            }
+
+            if (_store != null)
+            {
+                _store.Dispose();
+                _store = null;
+            }
         }
 
         public object Guard { get { return _guard; } }
@@ -38,7 +53,7 @@ namespace EZB.PackServerEngine
                 AddPackage(stream);
         }
 
-        public void AddPackage(Stream stream)
+        public bool AddPackage(Stream stream)
         {
             lock (_guard)
             {
@@ -49,6 +64,9 @@ namespace EZB.PackServerEngine
                     PackEngine.PackageInfo info = _store.WritePackage(stream, out storeFileName);
                     if (info == null || !info.IsValid() || string.IsNullOrEmpty(storeFileName))
                         throw new ApplicationException("Failed to handle the package");
+
+                    if (_index.GetEntry(info.Name, info.Version) != null)
+                        return false;
                 
                     _index.AddEntry(new PackageIndex.Entry { Info = info, StoreFileName = storeFileName });
                 }
@@ -60,6 +78,8 @@ namespace EZB.PackServerEngine
                     throw;
                 }
             }
+
+            return true;
         }
 
         public void RemovePackage(string name, Version version)

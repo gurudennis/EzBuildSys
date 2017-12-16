@@ -68,13 +68,14 @@ namespace EZB.Buildp
 
                 PackServerEngine.Engine engine = new PackServerEngine.Engine();
 
-                PackServerEngine.PackageManager packageManager = engine.CreatePackageManager(root);
-
-                using (PackServerEngine.Server server = engine.CreateServer(packageManager, port, iface))
+                using (PackServerEngine.PackageManager packageManager = engine.CreatePackageManager(root))
                 {
-                    Console.WriteLine($"== Server running on \"{iface}:{port}\"");
+                    using (PackServerEngine.Server server = engine.CreateServer(packageManager, port, iface))
+                    {
+                        Console.WriteLine($"== Server running on \"{iface}:{port}\"");
 
-                    Thread.Sleep(Timeout.Infinite); // TODO: replace with graceful stop logic
+                        Thread.Sleep(Timeout.Infinite); // TODO: replace with graceful stop logic
+                    }
                 }
             }
             finally

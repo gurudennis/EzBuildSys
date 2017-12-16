@@ -82,7 +82,7 @@ namespace EZB.PackServerEngine
                 if (request.Url.PathAndQuery.StartsWith("/packages?"))
                 {
                     _packageManager.GetPackage(name, version, response.OutputStream);
-                    response.ContentType = "application/zip";
+                    response.ContentType = "application/x-zip-compressed";
                     response.Headers["Content-Disposition"] = $"attachment; filename={name}_{version.ToString(4)}.zip";
                 }
                 else if (request.Url.PathAndQuery.StartsWith("/packages/list?") ||
@@ -129,13 +129,14 @@ namespace EZB.PackServerEngine
             {
                 if (request.Url.PathAndQuery== "/packages" || request.Url.PathAndQuery == "/packages/")
                 {
-                    if ((request.InputStream.Length == 0) ||
-                        (!string.IsNullOrEmpty(request.ContentType) && !request.ContentType.Contains("application/zip")))
+                    if ((request.ContentLength64 == 0) ||
+                        (!string.IsNullOrEmpty(request.ContentType) && !request.ContentType.Contains("zip")))
                     {
                         return HttpStatusCode.BadRequest;
                     }
 
-                    _packageManager.AddPackage(request.InputStream);
+                    if (!_packageManager.AddPackage(request.InputStream))
+                        return HttpStatusCode.Conflict;
                 }
                 else
                 {

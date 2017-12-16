@@ -3,7 +3,7 @@ using System.IO;
 
 namespace EZB.PackServerEngine
 {
-    internal class PackageStore
+    internal class PackageStore : IDisposable
     {
         internal PackageStore(string storeRoot)
         {
@@ -12,6 +12,10 @@ namespace EZB.PackServerEngine
             string tmpDirPath = Path.Combine(_storeRoot, TempDirName);
             if (Directory.Exists(tmpDirPath))
                 Directory.Delete(tmpDirPath, true);
+        }
+
+        public void Dispose()
+        {
         }
 
         public string MakeStoreFileName(string name, Version version)
@@ -59,13 +63,19 @@ namespace EZB.PackServerEngine
 
                 return info;
             }
+            catch
+            {
+                if (finalStorePath != null && File.Exists(finalStorePath))
+                    File.Delete(finalStorePath);
+
+                storeFileName = null;
+
+                return null;
+            }
             finally
             {
                 if (File.Exists(tempStorePath))
                     File.Delete(tempStorePath);
-
-                if (finalStorePath != null && File.Exists(finalStorePath))
-                    File.Delete(finalStorePath);
             }
         }
 
@@ -80,6 +90,10 @@ namespace EZB.PackServerEngine
 
             if (File.Exists(storePath))
                 File.Delete(storePath);
+
+            int index = storePath.IndexOf(Path.DirectorySeparatorChar);
+            if (index >= 0)
+                (new FileInfo(storePath)).Directory.Delete(false);
         }
 
         private Stream GetPackageStream(string storeFileName, bool write)
