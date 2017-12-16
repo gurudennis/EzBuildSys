@@ -8,9 +8,14 @@ namespace EZB.PackServerEngine
         {
         }
 
-        public Server CreateServer(short port = Server.DefaultPort, string iface = Common.RESTServer.AnyInterface)
+        public PackageManager CreatePackageManager(string root)
         {
-            return new Server(port, iface);
+            return new PackageManager(root);
+        }
+
+        public Server CreateServer(PackageManager packageManager, short port = Server.DefaultPort, string iface = Common.RESTServer.AnyInterface)
+        {
+            return new Server(packageManager, port, iface);
         }
     }
 }

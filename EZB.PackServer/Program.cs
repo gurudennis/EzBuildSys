@@ -68,7 +68,9 @@ namespace EZB.Buildp
 
                 PackServerEngine.Engine engine = new PackServerEngine.Engine();
 
-                using (PackServerEngine.Server server = engine.CreateServer(port, iface))
+                PackServerEngine.PackageManager packageManager = engine.CreatePackageManager(root);
+
+                using (PackServerEngine.Server server = engine.CreateServer(packageManager, port, iface))
                 {
                     Console.WriteLine($"== Server running on \"{iface}:{port}\"");
 
