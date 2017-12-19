@@ -31,9 +31,9 @@ namespace EZB.PackServerEngine
 
         public object Guard { get { return _guard; } }
 
-        public List<PackEngine.PackageInfo> ListPackages(string name, Version version)
+        public List<PackEngine.PackageInfo> ListPackages(string name, string version, int maxResults = -1)
         {
-            List<PackageIndex.Entry> entries = _index.ListEntries(name, version);
+            List<PackageIndex.Entry> entries = _index.ListEntries(name, version, maxResults);
             if (entries == null)
                 return null;
 
@@ -65,7 +65,7 @@ namespace EZB.PackServerEngine
                     if (info == null || !info.IsValid() || string.IsNullOrEmpty(storeFileName))
                         throw new ApplicationException("Failed to handle the package");
 
-                    if (_index.GetEntry(info.Name, info.Version) != null)
+                    if (_index.GetEntry(info.Name, info.Version.ToString()) != null)
                         return false;
                 
                     _index.AddEntry(new PackageIndex.Entry { Info = info, StoreFileName = storeFileName });
@@ -86,7 +86,7 @@ namespace EZB.PackServerEngine
         {
             lock (_guard)
             {
-                string storeFileName = GetStoreFileName(name, version);
+                string storeFileName = GetStoreFileName(name, version.ToString(4));
 
                 try { _store.DeletePackage(storeFileName); } catch { }
 
@@ -94,13 +94,13 @@ namespace EZB.PackServerEngine
             }
         }
 
-        public void GetPackage(string name, Version version, string path)
+        public void GetPackage(string name, string version, string path)
         {
             using (Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write))
                 GetPackage(name, version, stream);
         }
 
-        public void GetPackage(string name, Version version, Stream stream)
+        public void GetPackage(string name, string version, Stream stream)
         {
             lock (_guard)
             {
@@ -109,7 +109,7 @@ namespace EZB.PackServerEngine
             }
         }
 
-        public Stream GetPackage(string name, Version version)
+        public Stream GetPackage(string name, string version)
         {
             lock (_guard)
             {
@@ -117,7 +117,7 @@ namespace EZB.PackServerEngine
             }
         }
 
-        public PackEngine.PackageInfo GetPackageInfo(string name, Version version)
+        public PackEngine.PackageInfo GetPackageInfo(string name, string version)
         {
             PackageIndex.Entry index = _index.GetEntry(name, version);
             return (index == null || !index.IsValid) ? null : index.Info;
@@ -128,7 +128,7 @@ namespace EZB.PackServerEngine
             // TODO: implement automatic index recovery
         }
 
-        private string GetStoreFileName(string name, Version version)
+        private string GetStoreFileName(string name, string version)
         {
             try
             {
@@ -138,7 +138,10 @@ namespace EZB.PackServerEngine
             }
             catch { }
 
-            return _store.MakeStoreFileName(name, version);
+            if (string.IsNullOrEmpty(version) || version == PackageIndex.Latest)
+                return null;
+
+            return _store.MakeStoreFileName(name, Version.Parse(version));
         }
 
         private string _root;

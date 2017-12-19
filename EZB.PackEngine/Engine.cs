@@ -18,5 +18,10 @@ namespace EZB.PackEngine
         {
             return new PackageReader(path);
         }
+
+        public PackageManager CreatePackageManager(string serverURI)
+        {
+            return new PackageManager(serverURI);
+        }
     }
 }

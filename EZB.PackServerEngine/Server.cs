@@ -41,15 +41,14 @@ namespace EZB.PackServerEngine
             }
 
             string name = null;
-            Version version = null;
+            string version = null;
             if (isGET || isDELETE)
             {
                 try
                 {
                     NameValueCollection query = HttpUtility.ParseQueryString(request.Url.Query);
                     name = query.Get("name");
-                    string versionStr = query.Get("version");
-                    version = versionStr == null ? null : Version.Parse(versionStr);
+                    version = query.Get("version");
                 }
                 catch
                 {
@@ -73,14 +72,14 @@ namespace EZB.PackServerEngine
             }
         }
 
-        private HttpStatusCode OnGETRequest(HttpListenerRequest request, HttpListenerResponse response, string name, Version version)
+        private HttpStatusCode OnGETRequest(HttpListenerRequest request, HttpListenerResponse response, string name, string version)
         {
             try
             {
                 if (request.Url.PathAndQuery.StartsWith("/packages?"))
                 {
                     response.ContentType = "application/x-zip-compressed";
-                    response.Headers["Content-Disposition"] = $"attachment; filename={name}_{version.ToString(4)}.zip";
+                    response.Headers["Content-Disposition"] = $"attachment; filename={name}_{version}.zip";
                     _packageManager.GetPackage(name, version, response.OutputStream);
                 }
                 else if (request.Url.PathAndQuery.StartsWith("/packages/list?") ||
@@ -149,13 +148,13 @@ namespace EZB.PackServerEngine
             return HttpStatusCode.Created;
         }
 
-        private HttpStatusCode OnDELETERequest(HttpListenerRequest request, HttpListenerResponse response, string name, Version version)
+        private HttpStatusCode OnDELETERequest(HttpListenerRequest request, HttpListenerResponse response, string name, string version)
         {
             try
             {
                 if (request.Url.PathAndQuery.StartsWith("/packages?"))
                 {
-                    _packageManager.RemovePackage(name, version);
+                    _packageManager.RemovePackage(name, Version.Parse(version));
                 }
                 else
                 {

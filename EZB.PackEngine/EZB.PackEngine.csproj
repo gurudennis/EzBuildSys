@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Engine.cs" />
     <Compile Include="Package.cs" />
+    <Compile Include="PackageManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
