@@ -30,8 +30,8 @@ Examples:
     EZB.PackClient /verb Pack /pathIn c:\temp\MyPackageRoot
                    /pathOut c:\temp\{PackageName}_{PackageVersion}.zip
                    /name MyPackage /version 1.2.3.4
-    EZB.PackClient /verb Unpack /pathIn c:\temp\MyPackage.zip
-                   /pathOut c:\temp\{PackageName}_{PackageVersion}
+    EZB.PackClient /verb Download /pathOut c:\temp\{PackageName}_{PackageVersion}
+                   /serverURI http://myserver:8710 /name MyPackage /version latest
 ```
 
 ##### EZB.PackServer.exe
