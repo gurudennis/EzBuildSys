@@ -42,6 +42,7 @@ namespace EZB.PackServerEngine
 
             string name = null;
             string version = null;
+            int limit = -1;
             if (isGET || isDELETE)
             {
                 try
@@ -49,6 +50,7 @@ namespace EZB.PackServerEngine
                     NameValueCollection query = HttpUtility.ParseQueryString(request.Url.Query);
                     name = query.Get("name");
                     version = query.Get("version");
+                    limit = int.Parse(query.Get("limit") ?? "-1");
                 }
                 catch
                 {
@@ -60,7 +62,7 @@ namespace EZB.PackServerEngine
             try
             {
                 if (isGET)
-                    response.StatusCode = (int)OnGETRequest(request, response, name, version);
+                    response.StatusCode = (int)OnGETRequest(request, response, name, version, limit);
                 else if (isPUT)
                     response.StatusCode = (int)OnPUTRequest(request, response);
                 else if (isDELETE)
@@ -72,7 +74,7 @@ namespace EZB.PackServerEngine
             }
         }
 
-        private HttpStatusCode OnGETRequest(HttpListenerRequest request, HttpListenerResponse response, string name, string version)
+        private HttpStatusCode OnGETRequest(HttpListenerRequest request, HttpListenerResponse response, string name, string version, int limit)
         {
             try
             {
@@ -85,20 +87,12 @@ namespace EZB.PackServerEngine
                 else if (request.Url.PathAndQuery.StartsWith("/packages/list?") ||
                          request.Url.PathAndQuery == "/packages/list" || request.Url.PathAndQuery == "/packages/list/")
                 {
-                    List<PackEngine.PackageInfo> packages = _packageManager.ListPackages(name, version);
+                    List<PackEngine.PackageInfo> packages = _packageManager.ListPackages(name, version, limit);
                     if (packages == null)
                         packages = new List<PackEngine.PackageInfo>();
 
-                    List<object> packagesRoot = new List<object>();
-                    foreach (PackEngine.PackageInfo package in packages)
-                    {
-                        Dictionary<string, object> packageRoot = new Dictionary<string, object>();
-                        packageRoot["name"] = package.Name;
-                        packageRoot["version"] = package.Version.ToString(4);
-                        packagesRoot.Add(packageRoot);
-                    }
                     Dictionary<string, object> root = new Dictionary<string, object>();
-                    root["packages"] = packagesRoot;
+                    root["packages"] = PackEngine.PackageInfoSerializer.Serialize(packages);
 
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
                     string json = serializer.Serialize(root);

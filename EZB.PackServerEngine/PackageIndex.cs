@@ -120,7 +120,7 @@ namespace EZB.PackServerEngine
             return null;
         }
 
-        public List<Entry> ListEntries(string name, string version = null, int maxResults = -1)
+        public List<Entry> ListEntries(string name = null, string version = null, int maxResults = -1)
         {
             if (version == Latest)
                 maxResults = 1;

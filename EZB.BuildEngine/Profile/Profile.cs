@@ -53,27 +53,27 @@ namespace EZB.BuildEngine.Profile
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             Dictionary<string, object> profileRoot = serializer.Deserialize<Dictionary<string, object>>(json);
 
-            string type = GetJSONValue<string>(profileRoot, "type", null);
+            string type = Common.JSON.GetJSONValue<string>(profileRoot, "type", null);
             if (type != ExpectedType)
                 throw new ApplicationException($"Profile type \"{type??string.Empty}\" does not match the expected type \"{ExpectedType}\"");
 
-            Version = GetJSONValue<int>(profileRoot, "version", DefaultVersion);
+            Version = Common.JSON.GetJSONValue<int>(profileRoot, "version", DefaultVersion);
             if (Version > MaxUnderstoodVersion)
                 throw new ApplicationException($"Profile version {Version} is greater than {MaxUnderstoodVersion} that is supported by this executable");
 
-            Dictionary<string, object> profileObjRoot = GetJSONValue<Dictionary<string, object>>(profileRoot, "profile", null);
+            Dictionary<string, object> profileObjRoot = Common.JSON.GetJSONValue<Dictionary<string, object>>(profileRoot, "profile", null);
             if (profileObjRoot == null)
                 throw new ApplicationException($"A build must have a valid non-empty main \"profile\" section");
 
-            PreBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "prebuild", null), StageType.PreBuild);
+            PreBuild = StageFromJSON(Common.JSON.GetJSONValue<Dictionary<string, object>>(profileObjRoot, "prebuild", null), StageType.PreBuild);
 
-            Build = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "build", null), StageType.Build);
+            Build = StageFromJSON(Common.JSON.GetJSONValue<Dictionary<string, object>>(profileObjRoot, "build", null), StageType.Build);
             if (Build == null)
                 throw new ApplicationException($"A build must have a valid non-empty main \"build\" stage");
 
-            PostBuild = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postbuild", null), StageType.PostBuild);
+            PostBuild = StageFromJSON(Common.JSON.GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postbuild", null), StageType.PostBuild);
 
-            PostClean = StageFromJSON(GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postclean", null), StageType.PostClean);
+            PostClean = StageFromJSON(Common.JSON.GetJSONValue<Dictionary<string, object>>(profileObjRoot, "postclean", null), StageType.PostClean);
         }
 
         public int Version { get; private set; }
@@ -88,7 +88,7 @@ namespace EZB.BuildEngine.Profile
             if (stageRoot == null)
                 return null;
 
-            ArrayList itemsObj = GetJSONValue<ArrayList>(stageRoot, "items", null);
+            ArrayList itemsObj = Common.JSON.GetJSONValue<ArrayList>(stageRoot, "items", null);
             if (itemsObj == null || itemsObj.Count == 0)
                 return null;
 
@@ -114,11 +114,11 @@ namespace EZB.BuildEngine.Profile
 
             Item item = new Item();
 
-            item.Path = GetJSONValue<string>(itemRoot, "path", null);
+            item.Path = Common.JSON.GetJSONValue<string>(itemRoot, "path", null);
             if (string.IsNullOrEmpty(item.Path))
                 throw new ApplicationException($"A build item must have a path");
 
-            string type = GetJSONValue<string>(itemRoot, "type", null);
+            string type = Common.JSON.GetJSONValue<string>(itemRoot, "type", null);
             if (string.IsNullOrEmpty(type))
                 item.Type = DeduceItemTypeFromPath(item.Path);
             else
@@ -140,18 +140,6 @@ namespace EZB.BuildEngine.Profile
                 return ItemType.BatchScript;
 
             return ItemType.ShellCommand;
-        }
-
-        private T GetJSONValue<T>(Dictionary<string, object> obj, string name, T defValue)
-        {
-            object value = null;
-            if (!obj.TryGetValue(name, out value))
-                return defValue;
-
-            if (!(value is T))
-                return defValue;
-
-            return (T)value;
         }
 
         private static string ExpectedType = "EZB.BuildProfile";

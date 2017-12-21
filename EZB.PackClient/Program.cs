@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -18,8 +19,6 @@ namespace EZB.PackClient
 
         private int Run(string[] args)
         {
-            Console.WriteLine($"== EzBuildSys command line package client tool v.{Assembly.GetEntryAssembly().GetName().Version.ToString(3)} ==\r\n");
-
             int retcode = 0;
 
             Common.CommandLine cmdLine = null;
@@ -27,6 +26,10 @@ namespace EZB.PackClient
             try
             {
                 cmdLine = new Common.CommandLine(args);
+
+                if (cmdLine.GetValue<string>("/verb") != "List")
+                    Console.WriteLine($"== EzBuildSys command line package client tool v.{Assembly.GetEntryAssembly().GetName().Version.ToString(3)} ==\r\n");
+
                 RunInternal(cmdLine);
             }
             catch (Exception ex)
@@ -68,15 +71,25 @@ namespace EZB.PackClient
                 Directory.SetCurrentDirectory(rootPath);
             }
 
+            string verb = null;
+
             try
             {
                 PackEngine.Engine engine = new PackEngine.Engine();
 
-                string verb = cmdLine.GetValue<string>("/verb", "Build");
+                verb = cmdLine.GetValue<string>("/verb", "Build");
                 if (verb == "Pack")
                     DoPack(engine, cmdLine);
                 else if (verb == "Unpack")
                     DoUnpack(engine, cmdLine);
+                else if (verb == "List")
+                    DoList(engine, cmdLine);
+                else if (verb == "Upload")
+                    DoUpload(engine, cmdLine);
+                else if (verb == "Download")
+                    DoDownload(engine, cmdLine);
+                else if (verb == "Delete")
+                    DoDelete(engine, cmdLine);
                 else
                     throw new ApplicationException("Invalid verb specified");
             }
@@ -86,26 +99,29 @@ namespace EZB.PackClient
                     Directory.SetCurrentDirectory(prevDirPath);
             }
 
-            Console.WriteLine("\r\n== Package operation completed successfully.");
+            if (verb != "List")
+                Console.WriteLine("\r\n== Package operation completed successfully.");
         }
 
         private void Usage()
         {
             Console.WriteLine("Parameters:");
             Console.WriteLine("    /help            Show this information");
-            Console.WriteLine("    /verb            Pack, Unpack");
+            Console.WriteLine("    /verb            Pack, Unpack, List, Upload, Download, Delete");
             Console.WriteLine("    /rootPath        Optional root directory");
             Console.WriteLine("    /pathIn          Input path");
             Console.WriteLine("    /pathOut         Output path");
             Console.WriteLine("    /name            Package name");
             Console.WriteLine("    /version         Package version");
+            Console.WriteLine("    /serverURI       Package server URI");
+            Console.WriteLine("    /maxResults      Maximum number of listed results");
             Console.WriteLine("    /interactive     Interactive mode (requires some input)");
             Console.WriteLine("\r\nExamples:");
             Console.WriteLine("    EZB.PackClient /verb Pack /pathIn c:\\temp\\MyPackageRoot");
             Console.WriteLine("                   /pathOut c:\\temp\\{PackageName}_{PackageVersion}.zip");
             Console.WriteLine("                   /name MyPackage /version 1.2.3.4");
-            Console.WriteLine("    EZB.PackClient /verb Unpack /pathIn c:\\temp\\MyPackage.zip");
-            Console.WriteLine("                   /pathOut c:\\temp\\{PackageName}_{PackageVersion}");
+            Console.WriteLine("    EZB.PackClient /verb Download /pathOut c:\\temp\\{PackageName}_{PackageVersion}");
+            Console.WriteLine("                   /serverURI http://myserver:8710 /name MyPackage /version latest");
             Console.WriteLine();
         }
 
@@ -161,9 +177,71 @@ namespace EZB.PackClient
             reader.Extract(pathOut);
         }
 
+        private void DoList(PackEngine.Engine engine, Common.CommandLine cmdLine)
+        {
+            string serverURI = cmdLine.GetValue<string>("/serverURI");
+            if (string.IsNullOrEmpty(serverURI))
+                throw new ApplicationException("Server URI is required");
+
+            string name = cmdLine.GetValue<string>("/name");
+            string version = cmdLine.GetValue<string>("/version");
+            int maxResults = cmdLine.GetValue<int>("/maxResults", -1);
+
+            PackEngine.PackageManager packageManager = engine.CreatePackageManager(serverURI);
+
+            List<PackEngine.PackageInfo> packages = packageManager.ListPackages(name, version, maxResults);
+
+            PackEngine.PackageInfo first = null;
+            int dupeCount = 0;
+            foreach (PackEngine.PackageInfo package in packages)
+            {
+                if (first == null)
+                {
+                    first = package;
+                }
+                else if (first.Name == package.Name)
+                {
+                    ++dupeCount;
+                }
+                else
+                {
+                    PrintPackage(first, dupeCount);
+
+                    first = package;
+                    dupeCount = 0;
+                }
+            }
+
+            PrintPackage(first, dupeCount);
+        }
+
+        private void DoUpload(PackEngine.Engine engine, Common.CommandLine cmdLine)
+        {
+            // ...
+        }
+
+        private void DoDownload(PackEngine.Engine engine, Common.CommandLine cmdLine)
+        {
+            // ...
+        }
+
+        private void DoDelete(PackEngine.Engine engine, Common.CommandLine cmdLine)
+        {
+            // ...
+        }
+
         private string ReplacePackageInfoWildcards(string str, PackEngine.PackageInfo info)
         {
             return str.Replace("{PackageName}", info.Name).Replace("{PackageVersion}", info.Version.ToString());
+        }
+
+        private void PrintPackage(PackEngine.PackageInfo package, int dupeCount = 0)
+        {
+            if (package == null)
+                return;
+
+            string dupeStr = dupeCount > 0 ? $" (+{dupeCount} older)" : string.Empty;
+            Console.WriteLine($"{package.Name} {package.Version.ToString(4)}");
         }
     }
 }

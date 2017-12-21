@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -15,6 +16,54 @@ namespace EZB.PackEngine
         public bool IsValid() { return !string.IsNullOrEmpty(Name) && Version != null; }
 
         public static readonly string FileName = "EZB.PackageInfo.json";
+    }
+
+    public static class PackageInfoSerializer
+    {
+        public static Dictionary<string, object> Serialize(PackageInfo info)
+        {
+            if (info == null)
+                return null;
+
+            Dictionary<string, object> root = new Dictionary<string, object>();
+            root["name"] = info.Name;
+            root["version"] = info.Version.ToString(4);
+
+            return root;
+        }
+
+        public static ArrayList Serialize(List<PackageInfo> infos)
+        {
+            if (infos == null)
+                return null;
+
+            ArrayList list = new ArrayList();
+            foreach (PackageInfo info in infos)
+                list.Add(Serialize(info));
+
+            return list;
+        }
+
+        public static PackageInfo Deserialize(Dictionary<string, object> root)
+        {
+            if (root == null)
+                return null;
+
+            PackageInfo info = new PackageInfo();
+            info.Name = (string)root["name"];
+            info.Version = Version.Parse((string)root["version"]);
+
+            return info;
+        }
+
+        public static List<PackageInfo> Deserialize(ArrayList list)
+        {
+            List<PackageInfo> infos = new List<PackageInfo>();
+            foreach (Dictionary<string, object> root in list)
+                infos.Add(Deserialize(root));
+
+            return infos;
+        }
     }
 
     public class PackageWriter
@@ -80,12 +129,8 @@ namespace EZB.PackEngine
 
         private void SaveMetadata()
         {
-            Dictionary<string, object> root = new Dictionary<string, object>();
-            root["name"] = _info.Name;
-            root["version"] = _info.Version.ToString(4);
-
             JavaScriptSerializer serializer = new JavaScriptSerializer();
-            string json = serializer.Serialize(root);
+            string json = serializer.Serialize(PackageInfoSerializer.Serialize(_info));
 
             File.WriteAllText(Path.Combine(_tmpFolder, PackageInfo.FileName), json);
         }
@@ -129,12 +174,7 @@ namespace EZB.PackEngine
 
                 JavaScriptSerializer serializer = new JavaScriptSerializer();
                 Dictionary<string, object> root = serializer.Deserialize<Dictionary<string, object>>(json);
-
-                PackageInfo info = new PackageInfo();
-                info.Name = (string)root["name"];
-                info.Version = Version.Parse((string)root["version"]);
-
-                _info = info;
+                _info = PackageInfoSerializer.Deserialize(root);
             }
             catch (Exception)
             {

@@ -31,7 +31,7 @@ namespace EZB.PackServerEngine
 
         public object Guard { get { return _guard; } }
 
-        public List<PackEngine.PackageInfo> ListPackages(string name, string version, int maxResults = -1)
+        public List<PackEngine.PackageInfo> ListPackages(string name = null, string version = null, int maxResults = -1)
         {
             List<PackageIndex.Entry> entries = _index.ListEntries(name, version, maxResults);
             if (entries == null)
